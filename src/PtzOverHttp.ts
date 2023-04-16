@@ -37,23 +37,17 @@ class PtzOverHttp implements IPtzController {
     return `{"key":-1348950563,${req}}`;
   }
 
-  _makeRequest(body: string, way: ptzFuncEnum = ptzFuncEnum.SET) {
-    console.log("req:", body);
-    let req = http.request(
-      `http://${this.ip}/${way}`,
-      {
-        method: "POST",
-      },
-      (res) => {
-        let resBody = "";
-        res.on("data", (chunk) => {
-          resBody += chunk;
-        });
-        res.on("end", () => console.log("res:", cleanResBody(resBody)));
-      }
-    );
-    req.write(body);
-    req.end();
+  async _makeRequest(body: string, way: ptzFuncEnum = ptzFuncEnum.SET) {
+    try {
+      console.log("req:", body);
+      let response = await fetch(`http://${this.ip}/${way}`, {
+        body,
+        method: 'POST'
+      })
+      console.log('res: ' + cleanResBody((await response.text())))
+    } catch (error) {
+      console.error("Couldn't connect: ", error)
+    }
   }
 
   zoom(side: zoomSideEnum, speed: number) {
